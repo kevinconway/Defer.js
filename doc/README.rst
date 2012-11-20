@@ -1,67 +1,81 @@
-=======================
-Modelo.js Documentation
-=======================
+======================
+Defer.js Documentation
+======================
 
-The documents in this directory contain detailed usage guides and full API
-documentation for each of the Modelo.js libraries.
+.. contents::
 
-Each document has a one-to-one relationship with a library file. That is,
-event.rst is the documentation file for event.js.
+Description
+===========
 
-Package Contents
-================
+The defer.js library provides a platform independent process for scheduling
+functions to execute at the next available event cycle. In Node.js this
+functionality is provided by process.nextTick and, in that environment, this
+library becomes a thin wrapper around process.nextTick.
 
-The Modelo.js package is made up of several modules.
+In browser environments, this library leverages window.postMessage to schedule
+events. If the current browser environment does not support window.postMessage
+the library falls back to setTimeout.
 
--   modelo.js
+Usage Examples
+==============
 
-    The base library for creating and inheriting objects.
+Using the defer.js library is nearly identical to using the Node.js
+process.nextTick::
 
--   defer.js
+    function logLater() {
 
-    Cross platform support for deferring the execution of a function until
-    the next cycle of the event loop.
+        console.log("Second");
 
--   event.js
+    }
 
-    A modelo mixin that adds support for asynchronous event handling to objects.
+    defer(logLater);
+    console.log("First");
 
--   property.js
+    // Console Output: "First"
+    // Console Output: "Second"
 
-    Provides type and constraint validation for object properties.
+Deferring function with arguments
+---------------------------------
 
--   deferred.js
+Just as in the Node.js environment, there is no direct way to pass arguments
+to the deferred function. Instead, function wrappers should be used to
+provide this functionality::
 
-    An implementation of deferred and promise objects for use in asynchronous
-    programming.
+    function log(value) {
 
--   relate.js
+        console.log(value);
 
-    Extension of the property library that allows for modelo objects to be
-    linked in an ORM style way.
+    }
 
--   persist.js
+    defer(function () {
+        log("Second");
+    });
 
-    A modelo mixin that adds and API for persistent storage engines that allow
-    objects to be saved to and retrieved from, for example, databases or memory.
+    log("First");
 
-Documentation Format
-====================
+    // Console Output: "First"
+    // Console Output: "Second"
 
-Each documentation file is structured in the following format::
+API Reference
+=============
 
-    =====
-    Title
-    =====
+Exports
+-------
 
-    Table Of Contents
-    =================
+This module exports a single function. When required in a Node.js or AMD
+environment, the `defer` function will be the only value::
 
-    Description Of Library
-    ======================
+    var defer = require('defer');
 
-    Usage Examples
-    ==============
+    typeof defer === "function"; // true
 
-    API Reference
-    =============
+In vanilla, browser environments the `defer` function is injected into the
+global `modelo` object at `modelo.defer`::
+
+    typeof modelo.defer === "function"; // true
+
+defer(fn)
+---------
+
+Calls to `defer` will delay the execution of a function until the next available
+event cycle.

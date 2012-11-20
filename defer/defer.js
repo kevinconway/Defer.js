@@ -21,7 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-/*global require, define, module
+/*global require, define, module, process, window, setTimeout
 
 */
 (function (factory) {
@@ -35,7 +35,7 @@ SOFTWARE.
             browser: []
         };
 
-    def.call(this, 'Modelo/defer', deps[env], function () {
+    def.call(this, 'defer', deps[env], function () {
 
         var defer;
 
@@ -47,13 +47,13 @@ SOFTWARE.
         // it resolves to `setTimeout` when no other options is available.
         defer = (function () {
 
-            if (typeof process !== "undefined" && !!process.nextTick) {
+            if (process !== undefined && !!process.nextTick) {
 
                 return process.nextTick;
 
             }
 
-            if (typeof window !== "undefined") {
+            if (window !== undefined) {
 
                 // window.postMessage is refered to quite a bit in articles
                 // discussing a potential `setZeroTimeout` for browsers. The
@@ -75,7 +75,7 @@ SOFTWARE.
                             handle = function (event) {
 
                                 if (event.source === window &&
-                                    event.data === message) {
+                                        event.data === message) {
 
                                     if (!!event.stopPropogation) {
 

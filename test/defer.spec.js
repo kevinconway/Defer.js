@@ -7,12 +7,12 @@
     var env = factory.env,
         def = factory.def,
         deps = {
-            amd: ['lib/expect', '../modelo/defer'],
-            node: ['./lib/expect', '../modelo/defer.js'],
-            browser: ['expect', 'Modelo/defer']
+            amd: ['lib/expect', '../defer/defer'],
+            node: ['./lib/expect', '../defer/defer.js'],
+            browser: ['expect', 'defer']
         };
 
-    def.call(this, 'spec/Modelo/defer', deps[env], function (expect, defer) {
+    def.call(this, 'spec/defer', deps[env], function (expect, defer) {
 
         describe('The Defer library', function () {
 
