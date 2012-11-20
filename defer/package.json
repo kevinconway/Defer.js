@@ -1,6 +1,6 @@
 {
   "author": "Kevin Conway <kevinjacobconway@gmail.com> (https://github.com/kevinconway)",
-  "name": "defer",
+  "name": "deferjs",
   "description": "Cross platform async for JavaScript.",
   "version": "1.0.0",
   "homepage": "https://github.com/kevinconway/Defer.js",
