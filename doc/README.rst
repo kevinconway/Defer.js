@@ -70,9 +70,9 @@ environment, the `defer` function will be the only value::
     typeof defer === "function"; // true
 
 In vanilla, browser environments the `defer` function is injected into the
-global `modelo` object at `modelo.defer`::
+global `defer` variable::
 
-    typeof modelo.defer === "function"; // true
+    typeof defer === "function"; // true
 
 defer(fn)
 ---------

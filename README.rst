@@ -17,7 +17,7 @@ function. The ability to micromanage the JavaScript concurrency model is a
 major benefit of the language that this library extends to browser environments.
 
 Developers of cross platform JavaScript libraries can use Defer as a foundation
-for providing async behaviour.
+for providing async behaviour that is consistent across multiple environments.
 
 Show Me
 =======
@@ -27,12 +27,14 @@ Show Me
     function logSomething() { console.log("ASYNC"); }
 
     defer(logSomething);
+    console.log("SYNC");
 
+    // Console Output: "SYNC"
     // At some point later:
     // Console Output: "ASYNC"
 
 Defer exposes a single function called `defer`. This function is an abstraction
-over platform specif methods for deferring the execution of a function until
+over platform specific methods for deferring the execution of a function until
 the next cycle of the event loop. In Node.js this function aliases
 `process.nextTick`. In modern browsers this function leverages
 `window.postMessage`. In legacy browsers this function falls back on setTimeout.
@@ -53,21 +55,37 @@ RequireJS.
 Node.js
 -------
 
-This package can be loaded using `require()` just like any other in Node.js.
+This package is published through NPM under the name `deferjs`::
+
+    $ npm install deferjs
+
+Once installed, this package can be included in a project through `require()`
+just like any other node package.
 
 Browser (<script>)
 ------------------
 
-Developers working with a normal browser environment can use regular script
-tags to load mMdelo. Defer loads into a global `defer` function.
+Developers working with a normal browser environment can include the package
+through a normal <script> tag. The Defer package, by default, loads into a
+global variable named `defer`::
 
     <script src="defer.js"></script>
+
+Defer has no dependencies of its own that need to be loaded first.
 
 Browser (AMD)
 -------------
 
-Developers working with an AMD loader like RequireJS can add Defer as though
-it were normal dependencies.
+Developers working with RequireJS can also load the Defer package. Place the
+defer.js file in the /lib directory, or whichever directory has been configured
+as the one for dependencies, and it can be loaded with `require()`::
+
+    require(['defer'], function (defer) {
+
+    });
+
+Defer has no dependencies of its own that need to be present in the dependency
+directory.
 
 License
 =======
