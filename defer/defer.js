@@ -24,7 +24,7 @@ SOFTWARE.
 /*global require, define, module, process, window, setTimeout
 
 */
-(function (factory) {
+(function (ctx, factory) {
     "use strict";
 
     var env = factory.env,
@@ -35,7 +35,7 @@ SOFTWARE.
             browser: []
         };
 
-    def.call(this, 'defer', deps[env], function () {
+    def.call(ctx, 'defer', deps[env], function () {
 
         var defer;
 
@@ -68,7 +68,7 @@ SOFTWARE.
                 // functionality of process.nextTick.
                 if (!!window.postMessage) {
 
-                    return (function () {
+                    return (function (ctx) {
 
                         var queue = [],
                             message = "nextTick",
@@ -93,24 +93,24 @@ SOFTWARE.
 
                             };
 
-                        if (!!window.addEventListener) {
+                        if (!!ctx.window.addEventListener) {
 
-                            window.addEventListener("message", handle, true);
+                            ctx.window.addEventListener("message", handle, true);
 
                         } else {
 
-                            window.attachEvent("onmessage", handle);
+                            ctx.window.attachEvent("onmessage", handle);
 
                         }
 
                         return function (fn) {
 
                             queue.push(fn);
-                            window.postMessage(message, '*');
+                            ctx.window.postMessage(message, '*');
 
                         };
 
-                    }.call(this));
+                    }(ctx));
 
                 }
 
@@ -128,14 +128,14 @@ SOFTWARE.
 
             throw new Error("Unsupported environment for async events.");
 
-        }.call(this));
+        }());
 
 
         return defer;
 
     });
 
-}.call(this, (function () {
+}(this, (function (ctx) {
     "use strict";
 
     var currentEnvironment,
@@ -152,7 +152,7 @@ SOFTWARE.
 
         currentEnvironment = 'node';
 
-    } else if (this.window !== undefined) {
+    } else if (ctx.window !== undefined) {
 
         currentEnvironment = 'browser';
 
@@ -235,7 +235,7 @@ SOFTWARE.
 
         }
 
-    }.call());
+    }());
 
 
     return {
@@ -243,4 +243,4 @@ SOFTWARE.
         def: generator
     };
 
-}.call(this))));
+}(this))));
