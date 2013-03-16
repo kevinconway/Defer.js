@@ -4,7 +4,7 @@ Defer.js
 
 **Cross platform async for JavaScript.**
 
-*Status: In Development*
+*Status: Stable*
 
 What Is Defer?
 ===============
@@ -44,10 +44,10 @@ For more detailed usage guides and API specifications, see the docs directory.
 Setup Instructions
 ==================
 
-This library is designed from the beginning to operate in as many JavaScript
-environments as possible. To accomplish this, all modules have been wrapped in
-a specialized module pattern that will detect the current environment and
-choose the most appropriate loading mechanism.
+This library is designed to operate in multiple JavaScript environments without
+requiring change to the code base. To accomplish this, all modules have been
+wrapped in a specialized module pattern that will detect the current
+environment and choose the most appropriate loading mechanism for dependencies.
 
 Currently support platforms are Node.js, browser via <script>, and AMD via
 RequireJS.
@@ -97,7 +97,7 @@ This project is released and distributed under an MIT License.
 
 ::
 
-    Copyright (C) 2012 Kevin Conway
+    Copyright (C) 2013 Kevin Conway
 
     Permission is hereby granted, free of charge, to any person obtaining a copy
     of this software and associated documentation files (the "Software"), to
@@ -117,13 +117,6 @@ This project is released and distributed under an MIT License.
     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
     IN THE SOFTWARE.
 
-Mocha and Expect
-----------------
-
-Mocha and Expect are included with this repository for convenience. Both
-libraries are distributed by their original authors under the MIT license.
-Each library contains the full license text and original copyright notice.
-
 Contributors
 ============
 
@@ -138,9 +131,9 @@ Testing
 -------
 
 Test coverage is essential to backing up the claim that this library is
-compatible across all JavaScript environments. Unit tests are this repository's
-guarantee that all components function as advertised in the environment. For
-this reason, all code this repository must be tested using the chosen unit
+compatible across multiple JavaScript environments. Unit tests are this
+repository's guarantee that all components function as advertised. For this
+reason, all code in this repository must be tested using the chosen unit
 testing library: Mocha.js. The chosen assertion library to use with Mocha
 for this project is Expect.js. Mocha and Expect have been chosen for their
 cross-platform compatibility.
@@ -148,13 +141,6 @@ cross-platform compatibility.
 For convenience and portability, both Mocha and Express are included in this
 repository. For further convenience, browser based test runners have also been
 included for both <script> and AMD loading.
-
-Commit Messages
----------------
-
-All commit messages in this repository should conform with the commit message
-pattern detailed in
-`this document <https://github.com/StandardsDriven/Repository>`_.
 
 Contributor's Agreement
 -----------------------
