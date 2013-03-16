@@ -63,8 +63,8 @@ SOFTWARE.
                 // but, rather, at the next cycle of the event loop after the
                 // timeout has passed.
                 //
-                // Instead, this method a message passing features that has
-                // been integrated into modern browsers to replicate the
+                // Instead, this method uses a message passing features that
+                // has been integrated into modern browsers to replicate the
                 // functionality of process.nextTick.
                 if (!!window.postMessage) {
 
