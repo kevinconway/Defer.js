@@ -2,13 +2,13 @@
   "author": "Kevin Conway <kevinjacobconway@gmail.com> (https://github.com/kevinconway)",
   "name": "deferjs",
   "description": "Cross platform async for JavaScript.",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "homepage": "https://github.com/kevinconway/Defer.js",
   "repository": {
     "type": "git",
     "url": "git://github.com/kevinconway/Defer.js.git"
   },
-  "main": "./defer.js",
+  "main": "./defer/defer.js",
   "scripts": {
     "test": "mocha"
   },
