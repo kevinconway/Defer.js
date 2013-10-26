@@ -9,12 +9,13 @@ Defer.js
 What Is Defer?
 ===============
 
-Defer utility library that allows JavaScript developers to write async code
-that works across multiple JavaScript platforms.
+Defer is a utility library that allows JavaScript developers to write async
+code that works across multiple JavaScript platforms.
 
 This functionality is provided in Node.js through its `process.nextTick`
 function. The ability to micromanage the JavaScript concurrency model is a
-major benefit of the language that this library extends to browser environments.
+major benefit of the language that this library extends to browser
+environments.
 
 Developers of cross platform JavaScript libraries can use Defer as a foundation
 for providing async behaviour that is consistent across multiple environments.
@@ -37,7 +38,8 @@ Defer exposes a single function called `defer`. This function is an abstraction
 over platform specific methods for deferring the execution of a function until
 the next cycle of the event loop. In Node.js this function aliases
 `process.nextTick`. In modern browsers this function leverages
-`window.postMessage`. In legacy browsers this function falls back on setTimeout.
+`window.postMessage`. In legacy browsers this function falls back on
+setTimeout.
 
 For more detailed usage guides and API specifications, see the docs directory.
 
@@ -45,7 +47,7 @@ Setup Instructions
 ==================
 
 This library is designed to operate in multiple JavaScript environments without
-requiring change to the code base. To accomplish this, all modules have been
+requiring changes to the code base. To accomplish this, all modules have been
 wrapped in a specialized module pattern that will detect the current
 environment and choose the most appropriate loading mechanism for dependencies.
 
@@ -99,12 +101,12 @@ This project is released and distributed under an MIT License.
 
     Copyright (C) 2013 Kevin Conway
 
-    Permission is hereby granted, free of charge, to any person obtaining a copy
-    of this software and associated documentation files (the "Software"), to
-    deal in the Software without restriction, including without limitation the
-    rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-    sell copies of the Software, and to permit persons to whom the Software is
-    furnished to do so, subject to the following conditions:
+    Permission is hereby granted, free of charge, to any person obtaining a
+    copy of this software and associated documentation files (the "Software"),
+    to deal in the Software without restriction, including without limitation
+    the rights to use, copy, modify, merge, publish, distribute, sublicense,
+    and/or sell copies of the Software, and to permit persons to whom the
+    Software is furnished to do so, subject to the following conditions:
 
     The above copyright notice and this permission notice shall be included in
     all copies or substantial portions of the Software.
@@ -114,8 +116,8 @@ This project is released and distributed under an MIT License.
     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
     AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
     LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-    IN THE SOFTWARE.
+    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+    DEALINGS IN THE SOFTWARE.
 
 Contributors
 ============
