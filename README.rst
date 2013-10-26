@@ -4,7 +4,9 @@ Defer.js
 
 **Cross platform async for JavaScript.**
 
-*Status: Stable*
+.. image:: https://travis-ci.org/kevinconway/Defer.js.png?branch=master
+    :target: https://travis-ci.org/kevinconway/Defer.js
+    :alt: Current Build Status
 
 What Is Defer?
 ===============
