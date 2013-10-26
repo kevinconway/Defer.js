@@ -42,9 +42,9 @@ SOFTWARE.
         // The defer method becomes whichever method for function
         // deferrence is a best fit for the current environment.
         //
-        // Currently defer resolves to `process.nextTick` in Node.js.
-        // It resolves to wrapper around `window.postMessage` in the browser.
-        // it resolves to `setTimeout` when no other options is available.
+        // Currently defer resolves to process.nextTick in Node.js.
+        // It resolves to wrapper around `window.postMessage` in a modern
+        // browser and setTimeout in legacy browsers.
         defer = (function () {
 
             if (process !== undefined && !!process.nextTick) {
@@ -56,8 +56,8 @@ SOFTWARE.
             if (window !== undefined) {
 
                 // window.postMessage is refered to quite a bit in articles
-                // discussing a potential `setZeroTimeout` for browsers. The
-                // problem it attempts to solve is that `setTimeout` has a
+                // discussing a potential setZeroTimeout for browsers. The
+                // problem it attempts to solve is that setTimeout has a
                 // minimum wait time in all browsers. This means your function
                 // is not scheduled to run on the next cycle of the event loop
                 // but, rather, at the next cycle of the event loop after the
