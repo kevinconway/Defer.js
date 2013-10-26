@@ -42,22 +42,22 @@ SOFTWARE.
         // The defer method becomes whichever method for function
         // deferrence is a best fit for the current environment.
         //
-        // Currently defer resolves to `process.nextTick` in Node.js.
-        // It resolves to wrapper around `window.postMessage` in the browser.
-        // it resolves to `setTimeout` when no other options is available.
+        // Currently defer resolves to process.nextTick in Node.js.
+        // It resolves to wrapper around `window.postMessage` in a modern
+        // browser and setTimeout in legacy browsers.
         defer = (function () {
 
-            if (process !== undefined && !!process.nextTick) {
+            try {
 
                 return process.nextTick;
 
-            }
-
-            if (window !== undefined) {
+            // If process.nextTick does not exist, a ReferenceError is thrown.
+            // The next step is to try the window.postMessage method.
+            } catch (exc) {
 
                 // window.postMessage is refered to quite a bit in articles
-                // discussing a potential `setZeroTimeout` for browsers. The
-                // problem it attempts to solve is that `setTimeout` has a
+                // discussing a potential setZeroTimeout for browsers. The
+                // problem it attempts to solve is that setTimeout has a
                 // minimum wait time in all browsers. This means your function
                 // is not scheduled to run on the next cycle of the event loop
                 // but, rather, at the next cycle of the event loop after the
@@ -66,7 +66,7 @@ SOFTWARE.
                 // Instead, this method uses a message passing features that
                 // has been integrated into modern browsers to replicate the
                 // functionality of process.nextTick.
-                if (!!window.postMessage) {
+                if (!!ctx.window && !!ctx.window.postMessage) {
 
                     return (function (ctx) {
 
@@ -95,7 +95,11 @@ SOFTWARE.
 
                         if (!!ctx.window.addEventListener) {
 
-                            ctx.window.addEventListener("message", handle, true);
+                            ctx.window.addEventListener(
+                                "message",
+                                handle,
+                                true
+                            );
 
                         } else {
 
@@ -125,8 +129,6 @@ SOFTWARE.
                 };
 
             }
-
-            throw new Error("Unsupported environment for async events.");
 
         }());
 
@@ -184,7 +186,7 @@ SOFTWARE.
 
                 }
 
-                module.exports = mod.apply(this, dep_list);
+                module.exports = mod.apply(ctx, dep_list);
 
             };
 
@@ -197,7 +199,7 @@ SOFTWARE.
             return function (name, deps, mod) {
 
                 var namespaces = name.split('/'),
-                    root = this,
+                    root = ctx,
                     dep_list = [],
                     current_scope,
                     current_dep,
@@ -211,7 +213,8 @@ SOFTWARE.
 
                     for (x = 0; x < current_dep.length; x = x + 1) {
 
-                        current_scope = current_scope[current_dep[x]] || {};
+                        current_scope = current_scope[current_dep[x]] =
+                                        current_scope[current_dep[x]] || {};
 
                     }
 
@@ -222,11 +225,12 @@ SOFTWARE.
                 current_scope = root;
                 for (i = 1; i < namespaces.length; i = i + 1) {
 
-                    current_scope = current_scope[namespaces[i - 1]] || {};
+                    current_scope = current_scope[namespaces[i - 1]] =
+                                    current_scope[namespaces[i - 1]] || {};
 
                 }
 
-                current_scope[namespaces[i - 1]] = mod.apply(this, dep_list);
+                current_scope[namespaces[i - 1]] = mod.apply(ctx, dep_list);
 
             };
 
