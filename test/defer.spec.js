@@ -99,7 +99,7 @@
 
                 }
 
-                module.exports = mod.apply(this, dep_list);
+                module.exports = mod.apply(ctx, dep_list);
 
             };
 
@@ -112,7 +112,7 @@
             return function (name, deps, mod) {
 
                 var namespaces = name.split('/'),
-                    root = this,
+                    root = ctx,
                     dep_list = [],
                     current_scope,
                     current_dep,
@@ -126,7 +126,8 @@
 
                     for (x = 0; x < current_dep.length; x = x + 1) {
 
-                        current_scope = current_scope[current_dep[x]] || {};
+                        current_scope = current_scope[current_dep[x]] =
+                                        current_scope[current_dep[x]] || {};
 
                     }
 
@@ -137,11 +138,12 @@
                 current_scope = root;
                 for (i = 1; i < namespaces.length; i = i + 1) {
 
-                    current_scope = current_scope[namespaces[i - 1]] || {};
+                    current_scope = current_scope[namespaces[i - 1]] =
+                                    current_scope[namespaces[i - 1]] || {};
 
                 }
 
-                current_scope[namespaces[i - 1]] = mod.apply(this, dep_list);
+                current_scope[namespaces[i - 1]] = mod.apply(ctx, dep_list);
 
             };
 
