@@ -47,13 +47,13 @@ SOFTWARE.
         // browser and setTimeout in legacy browsers.
         defer = (function () {
 
-            if (process !== undefined && !!process.nextTick) {
+            try {
 
                 return process.nextTick;
 
-            }
-
-            if (window !== undefined) {
+            // If process.nextTick does not exist, a ReferenceError is thrown.
+            // The next step is to try the window.postMessage method.
+            } catch (exc) {
 
                 // window.postMessage is refered to quite a bit in articles
                 // discussing a potential setZeroTimeout for browsers. The
@@ -66,7 +66,7 @@ SOFTWARE.
                 // Instead, this method uses a message passing features that
                 // has been integrated into modern browsers to replicate the
                 // functionality of process.nextTick.
-                if (!!window.postMessage) {
+                if (!!ctx.window && !!ctx.window.postMessage) {
 
                     return (function (ctx) {
 
@@ -129,8 +129,6 @@ SOFTWARE.
                 };
 
             }
-
-            throw new Error("No known deferrence method in this environment.");
 
         }());
 
