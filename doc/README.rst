@@ -39,7 +39,8 @@ Deferring function with arguments
 
 Just as in the Node.js environment, there is no direct way to pass arguments
 to the deferred function. Instead, function wrappers or binding should be used
-to provide this functionality::
+to provide this functionality. There is a method called `bind` in this module
+which has similar interface to the built-in method of the same name.::
 
     function log(value) {
 
@@ -47,10 +48,7 @@ to provide this functionality::
 
     }
 
-    defer(function () {
-        log("Second");
-    });
-
+    defer(defer.bind(log, null, "Second"));
     log("First");
 
     // Console Output: "First"
@@ -62,21 +60,31 @@ API Reference
 Exports
 -------
 
-This module exports a single function. When required in a Node.js the `defer`
-function will be the only value::
+When required in a Node.js the `defer` function is exported. For convenience,
+a `bind` method is attached to this function::
 
     var defer = require('deferjs');
 
     typeof defer === "function"; // true
+    typeof defer.bind === "function"; // true
 
 In browser environments the `defer` function is injected into the global
 `deferjs` variable::
 
     typeof deferjs === "function"; // true
     typeof deferjs.defer === "function"; // true
+    typeof deferjs.bind === "function"; // true
 
 defer(fn)
 ---------
 
 Calls to `defer` will delay the execution of a function until the next
 available cycle of the event loop.
+
+bind(fn, ctx[, arg1[, arg2...]])
+--------------------------------
+
+Create a bound form of `fn` which executes within the context of `ctx`.
+Optionally, bind `fn` to run with a given set of arguments as preceding the
+arguments passed to the bound version of the function. This behaviour should
+be comparable to the built in `Function.prototype.bind` method.

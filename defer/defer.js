@@ -102,7 +102,7 @@ SOFTWARE.
 
               }
 
-              return function (fn) {
+              return function defer(fn) {
 
                 queue.push(fn);
                 ctx.window.postMessage(message, '*');
@@ -117,7 +117,7 @@ SOFTWARE.
           // function execution in legacy browsers without using
           // `setTimeout`. If you know of a way to trigger asynchronous
           // actions in legacy browsers then I would love to hear it.
-          return function (fn) {
+          return function defer(fn) {
 
             setTimeout(fn, 0);
 
@@ -126,6 +126,19 @@ SOFTWARE.
         }
 
       }());
+
+      defer.bind = function bind(fn, ctx) {
+
+        var boundArgs = Array.prototype.slice.call(arguments, 2);
+
+        return function () {
+
+          var unboundArgs = Array.prototype.slice.call(arguments);
+          return fn.apply(ctx, boundArgs.concat(unboundArgs));
+
+        };
+
+      };
 
       defer.defer = defer;
 
