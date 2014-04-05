@@ -62,17 +62,18 @@ API Reference
 Exports
 -------
 
-This module exports a single function. When required in a Node.js or AMD
-environment, the `defer` function will be the only value::
+This module exports a single function. When required in a Node.js the `defer`
+function will be the only value::
 
-    var defer = require('defer');
-
-    typeof defer === "function"; // true
-
-In vanilla, browser environments the `defer` function is injected into the
-global `defer` variable::
+    var defer = require('deferjs');
 
     typeof defer === "function"; // true
+
+In browser environments the `defer` function is injected into the global
+`deferjs` variable::
+
+    typeof deferjs === "function"; // true
+    typeof deferjs.defer === "function"; // true
 
 defer(fn)
 ---------

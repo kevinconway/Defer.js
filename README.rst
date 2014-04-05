@@ -45,16 +45,8 @@ setTimeout.
 
 For more detailed usage guides and API specifications, see the docs directory.
 
-Setup Instructions
-==================
-
-This library is designed to operate in multiple JavaScript environments without
-requiring changes to the code base. To accomplish this, all modules have been
-wrapped in a specialized module pattern that will detect the current
-environment and choose the most appropriate loading mechanism for dependencies.
-
-Currently support platforms are Node.js, browser via <script>, and AMD via
-RequireJS.
+Setup
+=====
 
 Node.js
 -------
@@ -63,33 +55,26 @@ This package is published through NPM under the name `deferjs`::
 
     $ npm install deferjs
 
-Once installed, this package can be included in a project through `require()`
-just like any other node package.
+Once installed, simply `defer = require("deferjs")`.
 
-Browser (<script>)
-------------------
+Browser
+-------
 
-Developers working with a normal browser environment can include the package
-through a normal <script> tag. The Defer package, by default, loads into a
-global variable named `defer`::
+Developers working in normal browser environments can use <script> tags to load
+this package::
 
     <script src="defer.js"></script>
 
 Defer has no dependencies of its own that need to be loaded first.
 
-Browser (AMD)
--------------
+Tests
+-----
 
-Developers working with RequireJS can also load the Defer package. Place the
-defer.js file in the /lib directory, or whichever directory has been configured
-as the one for dependencies, and it can be loaded with `require()`::
+To run the tests in Node.js use the `npm test` command.
 
-    require(['defer'], function (defer) {
+To run the tests in a browser, run the `install_libs` script in the test
+directory and then open the `runner.html` in the browser of your choice.
 
-    });
-
-Defer has no dependencies of its own that need to be present in the dependency
-directory.
 
 License
 =======
@@ -127,24 +112,13 @@ Contributors
 Style Guide
 -----------
 
-This library needs to be not only cross-platform compatible but also backwards
-compatible as much as possible when it comes to browser environments. For this
-reason, all code in this repository must validate with JSLint.
+All code must validate against JSlint.
 
 Testing
 -------
 
-Test coverage is essential to backing up the claim that this library is
-compatible across multiple JavaScript environments. Unit tests are this
-repository's guarantee that all components function as advertised. For this
-reason, all code in this repository must be tested using the chosen unit
-testing library: Mocha.js. The chosen assertion library to use with Mocha
-for this project is Expect.js. Mocha and Expect have been chosen for their
-cross-platform compatibility.
-
-For convenience and portability, both Mocha and Express are included in this
-repository. For further convenience, browser based test runners have also been
-included for both <script> and AMD loading.
+Mocha plus expect. All tests and functionality must run in Node.js and the
+browser.
 
 Contributor's Agreement
 -----------------------
