@@ -127,6 +127,7 @@ SOFTWARE.
 
       }());
 
+      defer.defer = defer;
 
       return defer;
 
