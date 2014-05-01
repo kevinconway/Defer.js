@@ -129,7 +129,16 @@ SOFTWARE.
 
       defer.bind = function bind(fn, ctx) {
 
-        var boundArgs = Array.prototype.slice.call(arguments, 2);
+        var boundArgs;
+
+        if (!!Function.prototype.bind) {
+
+          boundArgs = Array.prototype.slice.call(arguments, 1);
+          return Function.prototype.bind.apply(fn, boundArgs);
+
+        }
+
+        boundArgs = Array.prototype.slice.call(arguments, 2);
 
         return function () {
 
