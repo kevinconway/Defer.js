@@ -37,91 +37,100 @@ SOFTWARE.
       // The defer method becomes whichever method for function
       // deferrence is a best fit for the current environment.
       //
-      // Currently defer resolves to process.nextTick in Node.js.
+      // Currently defer resolves to setImmediate in modern Node.js and
+      // process.nextTick in legacy Node.js.
       // It resolves to wrapper around `window.postMessage` in a modern
       // browser and setTimeout in legacy browsers.
       defer = (function () {
 
         try {
 
-          return process.nextTick;
+          return setImmediate;
 
-          // If process.nextTick does not exist, a ReferenceError is thrown.
-          // The next step is to try the window.postMessage method.
-        } catch (exc) {
+        } catch (err) {
 
-          // window.postMessage is refered to quite a bit in articles
-          // discussing a potential setZeroTimeout for browsers. The
-          // problem it attempts to solve is that setTimeout has a
-          // minimum wait time in all browsers. This means your function
-          // is not scheduled to run on the next cycle of the event loop
-          // but, rather, at the next cycle of the event loop after the
-          // timeout has passed.
-          //
-          // Instead, this method uses a message passing features that
-          // has been integrated into modern browsers to replicate the
-          // functionality of process.nextTick.
-          if (!!context.window && !!context.window.postMessage) {
+          try {
 
-            return (function (ctx) {
+            return process.nextTick;
 
-              var queue = [],
-                message = "nextTick",
-                handle = function (event) {
+            // If process.nextTick does not exist, a ReferenceError is thrown.
+            // The next step is to try the window.postMessage method.
+          } catch (exc) {
 
-                  if (event.source === ctx.window &&
-                        event.data === message) {
+            // window.postMessage is refered to quite a bit in articles
+            // discussing a potential setZeroTimeout for browsers. The
+            // problem it attempts to solve is that setTimeout has a
+            // minimum wait time in all browsers. This means your function
+            // is not scheduled to run on the next cycle of the event loop
+            // but, rather, at the next cycle of the event loop after the
+            // timeout has passed.
+            //
+            // Instead, this method uses a message passing features that
+            // has been integrated into modern browsers to replicate the
+            // functionality of process.nextTick.
+            if (!!context.window && !!context.window.postMessage) {
 
-                    if (!!event.stopPropogation) {
+              return (function (ctx) {
 
-                      event.stopPropogation();
+                var queue = [],
+                  message = "nextTick",
+                  handle = function (event) {
+
+                    if (event.source === ctx.window &&
+                          event.data === message) {
+
+                      if (!!event.stopPropogation) {
+
+                        event.stopPropogation();
+
+                      }
+
+                      if (queue.length > 0) {
+
+                        queue.shift()();
+
+                      }
 
                     }
 
-                    if (queue.length > 0) {
+                  };
 
-                      queue.shift()();
+                if (!!ctx.window.addEventListener) {
 
-                    }
+                  ctx.window.addEventListener(
+                    "message",
+                    handle,
+                    true
+                  );
 
-                  }
+                } else {
+
+                  ctx.window.attachEvent("onmessage", handle);
+
+                }
+
+                return function defer(fn) {
+
+                  queue.push(fn);
+                  ctx.window.postMessage(message, '*');
 
                 };
 
-              if (!!ctx.window.addEventListener) {
+              }(context));
 
-                ctx.window.addEventListener(
-                  "message",
-                  handle,
-                  true
-                );
+            }
 
-              } else {
+            // Try as I might, I could not find a process for deferring
+            // function execution in legacy browsers without using
+            // `setTimeout`. If you know of a way to trigger asynchronous
+            // actions in legacy browsers then I would love to hear it.
+            return function defer(fn) {
 
-                ctx.window.attachEvent("onmessage", handle);
+              setTimeout(fn, 0);
 
-              }
-
-              return function defer(fn) {
-
-                queue.push(fn);
-                ctx.window.postMessage(message, '*');
-
-              };
-
-            }(context));
+            };
 
           }
-
-          // Try as I might, I could not find a process for deferring
-          // function execution in legacy browsers without using
-          // `setTimeout`. If you know of a way to trigger asynchronous
-          // actions in legacy browsers then I would love to hear it.
-          return function defer(fn) {
-
-            setTimeout(fn, 0);
-
-          };
 
         }
 
