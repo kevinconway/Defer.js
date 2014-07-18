@@ -8,9 +8,9 @@ Description
 ===========
 
 The defer.js library provides a platform independent process for scheduling
-functions to execute at the next available event cycle. In Node.js this
-functionality is provided by process.nextTick and, in that environment, this
-library becomes a simple alias for process.nextTick.
+functions to execute at a later cycle of the event loop. In Node.js this
+functionality is provided by setImmediate when available and process.nextTick
+when setImmediate is not present.
 
 In browser environments, this library leverages window.postMessage to schedule
 events. If the current browser environment does not support window.postMessage
