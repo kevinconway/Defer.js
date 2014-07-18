@@ -21,225 +21,138 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-/*jslint node: true, indent: 2, passfail: true */
+/*jslint node: true, browser: true, indent: 2, passfail: true */
 
-(function (context, generator) {
+module.exports = (function (context) {
   "use strict";
 
-  generator.call(
-    context,
-    'deferjs',
-    [],
-    function () {
+  var defer;
 
-      var defer;
+  // The defer method becomes whichever method for function
+  // deferrence is a best fit for the current environment.
+  //
+  // Currently defer resolves to setImmediate in modern Node.js and
+  // process.nextTick in legacy Node.js.
+  // It resolves to wrapper around `window.postMessage` in a modern
+  // browser and setTimeout in legacy browsers.
+  defer = (function () {
 
-      // The defer method becomes whichever method for function
-      // deferrence is a best fit for the current environment.
-      //
-      // Currently defer resolves to setImmediate in modern Node.js and
-      // process.nextTick in legacy Node.js.
-      // It resolves to wrapper around `window.postMessage` in a modern
-      // browser and setTimeout in legacy browsers.
-      defer = (function () {
+    try {
 
-        try {
+      return setImmediate;
 
-          return setImmediate;
+    } catch (err) {
 
-        } catch (err) {
+      try {
 
-          try {
+        return process.nextTick;
 
-            return process.nextTick;
+        // If process.nextTick does not exist, a ReferenceError is thrown.
+        // The next step is to try the window.postMessage method.
+      } catch (exc) {
 
-            // If process.nextTick does not exist, a ReferenceError is thrown.
-            // The next step is to try the window.postMessage method.
-          } catch (exc) {
+        // window.postMessage is refered to quite a bit in articles
+        // discussing a potential setZeroTimeout for browsers. The
+        // problem it attempts to solve is that setTimeout has a
+        // minimum wait time in all browsers. This means your function
+        // is not scheduled to run on the next cycle of the event loop
+        // but, rather, at the next cycle of the event loop after the
+        // timeout has passed.
+        //
+        // Instead, this method uses a message passing features that
+        // has been integrated into modern browsers to replicate the
+        // functionality of process.nextTick.
+        if (!!context.window && !!context.window.postMessage) {
 
-            // window.postMessage is refered to quite a bit in articles
-            // discussing a potential setZeroTimeout for browsers. The
-            // problem it attempts to solve is that setTimeout has a
-            // minimum wait time in all browsers. This means your function
-            // is not scheduled to run on the next cycle of the event loop
-            // but, rather, at the next cycle of the event loop after the
-            // timeout has passed.
-            //
-            // Instead, this method uses a message passing features that
-            // has been integrated into modern browsers to replicate the
-            // functionality of process.nextTick.
-            if (!!context.window && !!context.window.postMessage) {
+          return (function (ctx) {
 
-              return (function (ctx) {
+            var queue = [],
+              message = "nextTick",
+              handle = function (event) {
 
-                var queue = [],
-                  message = "nextTick",
-                  handle = function (event) {
+                if (event.source === ctx.window &&
+                      event.data === message) {
 
-                    if (event.source === ctx.window &&
-                          event.data === message) {
+                  if (!!event.stopPropogation) {
 
-                      if (!!event.stopPropogation) {
+                    event.stopPropogation();
 
-                        event.stopPropogation();
+                  }
 
-                      }
+                  if (queue.length > 0) {
 
-                      if (queue.length > 0) {
+                    queue.shift()();
 
-                        queue.shift()();
-
-                      }
-
-                    }
-
-                  };
-
-                if (!!ctx.window.addEventListener) {
-
-                  ctx.window.addEventListener(
-                    "message",
-                    handle,
-                    true
-                  );
-
-                } else {
-
-                  ctx.window.attachEvent("onmessage", handle);
+                  }
 
                 }
 
-                return function defer(fn) {
+              };
 
-                  queue.push(fn);
-                  ctx.window.postMessage(message, '*');
+            if (!!ctx.window.addEventListener) {
 
-                };
+              ctx.window.addEventListener(
+                "message",
+                handle,
+                true
+              );
 
-              }(context));
+            } else {
+
+              ctx.window.attachEvent("onmessage", handle);
 
             }
 
-            // Try as I might, I could not find a process for deferring
-            // function execution in legacy browsers without using
-            // `setTimeout`. If you know of a way to trigger asynchronous
-            // actions in legacy browsers then I would love to hear it.
             return function defer(fn) {
 
-              setTimeout(fn, 0);
+              queue.push(fn);
+              ctx.window.postMessage(message, '*');
 
             };
 
-          }
+          }(context));
 
         }
 
-      }());
+        // Try as I might, I could not find a process for deferring
+        // function execution in legacy browsers without using
+        // `setTimeout`. If you know of a way to trigger asynchronous
+        // actions in legacy browsers then I would love to hear it.
+        return function defer(fn) {
 
-      defer.bind = function bind(fn, ctx) {
-
-        var boundArgs;
-
-        if (!!Function.prototype.bind) {
-
-          boundArgs = Array.prototype.slice.call(arguments, 1);
-          return Function.prototype.bind.apply(fn, boundArgs);
-
-        }
-
-        boundArgs = Array.prototype.slice.call(arguments, 2);
-
-        return function () {
-
-          var unboundArgs = Array.prototype.slice.call(arguments);
-          return fn.apply(ctx, boundArgs.concat(unboundArgs));
+          setTimeout(fn, 0);
 
         };
 
-      };
-
-      defer.defer = defer;
-
-      return defer;
+      }
 
     }
-  );
 
-}(this, (function (context) {
-  "use strict";
+  }());
 
-  // Ignoring the unused "name" in the Node.js definition function.
-  /*jslint unparam: true */
-  if (typeof require === "function" &&
-        module !== undefined &&
-        !!module.exports) {
+  defer.bind = function bind(fn, ctx) {
 
-    // If this module is loaded in Node, require each of the
-    // dependencies and pass them along.
-    return function (name, deps, mod) {
+    var boundArgs;
 
-      var x,
-        dep_list = [];
+    if (!!Function.prototype.bind) {
 
-      for (x = 0; x < deps.length; x = x + 1) {
+      boundArgs = Array.prototype.slice.call(arguments, 1);
+      return Function.prototype.bind.apply(fn, boundArgs);
 
-        dep_list.push(require(deps[x]));
+    }
 
-      }
+    boundArgs = Array.prototype.slice.call(arguments, 2);
 
-      module.exports = mod.apply(context, dep_list);
+    return function () {
+
+      var unboundArgs = Array.prototype.slice.call(arguments);
+      return fn.apply(ctx, boundArgs.concat(unboundArgs));
 
     };
 
-  }
-  /*jslint unparam: false */
+  };
 
-  if (context.window !== undefined) {
+  defer.defer = defer;
 
-    // If this module is being used in a browser environment first
-    // generate a list of dependencies, run the provided definition
-    // function with the list of dependencies, and insert the returned
-    // object into the global namespace using the provided module name.
-    return function (name, deps, mod) {
-
-      var namespaces = name.split('/'),
-        root = context,
-        dep_list = [],
-        current_scope,
-        current_dep,
-        i,
-        x;
-
-      for (i = 0; i < deps.length; i = i + 1) {
-
-        current_scope = root;
-        current_dep = deps[i].split('/');
-
-        for (x = 0; x < current_dep.length; x = x + 1) {
-
-          current_scope = current_scope[current_dep[x]] =
-                          current_scope[current_dep[x]] || {};
-
-        }
-
-        dep_list.push(current_scope);
-
-      }
-
-      current_scope = root;
-      for (i = 1; i < namespaces.length; i = i + 1) {
-
-        current_scope = current_scope[namespaces[i - 1]] =
-                        current_scope[namespaces[i - 1]] || {};
-
-      }
-
-      current_scope[namespaces[i - 1]] = mod.apply(context, dep_list);
-
-    };
-
-  }
-
-  throw new Error("Unrecognized environment.");
-
-}(this))));
+  return defer;
+}(this));
