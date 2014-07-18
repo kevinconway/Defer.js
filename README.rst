@@ -15,9 +15,9 @@ Defer is a utility library that allows JavaScript developers to write async
 code that works across multiple JavaScript platforms.
 
 This functionality is provided in Node.js through its `process.nextTick`
-function. The ability to micromanage the JavaScript concurrency model is a
-major benefit of the language that this library extends to browser
-environments.
+and setImmediate functions. The ability to micromanage the JavaScript
+concurrency model is a major benefit of the language that this library extends
+to browser environments.
 
 Developers of cross platform JavaScript libraries can use Defer as a foundation
 for providing async behaviour that is consistent across multiple environments.
@@ -36,12 +36,12 @@ Show Me
     // At some point later:
     // Console Output: "ASYNC"
 
-Defer exposes a single function called `defer`. This function is an abstraction
+Defer exposes a function called `defer`. This function is an abstraction
 over platform specific methods for deferring the execution of a function until
-the next cycle of the event loop. In Node.js this function aliases
-`process.nextTick`. In modern browsers this function leverages
-`window.postMessage`. In legacy browsers this function falls back on
-setTimeout.
+a later cycle of the event loop. In modern Node.js this function aliases
+`setImmediate`. In legacy Node.js `process.nextTick` is used. In modern
+browsers this function leverages `window.postMessage`. In legacy browsers this
+function falls back on setTimeout.
 
 For more detailed usage guides and API specifications, see the docs directory.
 
@@ -60,21 +60,20 @@ Once installed, simply `defer = require("deferjs")`.
 Browser
 -------
 
-Developers working in normal browser environments can use <script> tags to load
-this package::
+This module uses browserify to create a browser compatible module. The default
+grunt workflow for this project will generate both a full and minified browser
+script in a build directory which can be included as a <script> tag::
 
-    <script src="defer.js"></script>
+    <script src="defer.browser.min.js"></script>
 
-Defer has no dependencies of its own that need to be loaded first.
+The package is exposed via the global name `deferjs`.
 
 Tests
 -----
 
-To run the tests in Node.js use the `npm test` command.
-
-To run the tests in a browser, run the `install_libs` script in the test
-directory and then open the `runner.html` in the browser of your choice.
-
+Running the `npm test` command will kick off the default grunt workflow. This
+will lint using jslint, run the mocha/expect tests, generate a browser module,
+and test the browser module using PhantomJS.
 
 License
 =======
