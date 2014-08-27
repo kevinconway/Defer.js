@@ -28,131 +28,112 @@ module.exports = (function (context) {
 
   var defer;
 
-  // The defer method becomes whichever method for function
-  // deferrence is a best fit for the current environment.
-  //
-  // Currently defer resolves to setImmediate in modern Node.js and
-  // process.nextTick in legacy Node.js.
-  // It resolves to wrapper around `window.postMessage` in a modern
-  // browser and setTimeout in legacy browsers.
-  defer = (function () {
-
+  function getSetImmediate() {
     try {
-
       return setImmediate;
-
     } catch (err) {
+      return false;
+    }
+  }
 
-      try {
+  function getNextTick() {
+    try {
+      return process.nextTick;
+    } catch (err) {
+      return false;
+    }
+  }
 
-        return process.nextTick;
+  // window.postMessage is refered to quite a bit in articles
+  // discussing a potential setZeroTimeout for browsers. The
+  // problem it attempts to solve is that setTimeout has a
+  // minimum wait time in all browsers. This means your function
+  // is not scheduled to run on the next cycle of the event loop
+  // but, rather, at the next cycle of the event loop after the
+  // timeout has passed.
+  //
+  // Instead, this method uses a message passing features that
+  // has been integrated into modern browsers to replicate the
+  // functionality of process.nextTick.
+  function postMessage(ctx) {
+    var queue = [],
+      message = "nextTick";
 
-        // If process.nextTick does not exist, a ReferenceError is thrown.
-        // The next step is to try the window.postMessage method.
-      } catch (exc) {
+    function handle(event) {
 
-        // window.postMessage is refered to quite a bit in articles
-        // discussing a potential setZeroTimeout for browsers. The
-        // problem it attempts to solve is that setTimeout has a
-        // minimum wait time in all browsers. This means your function
-        // is not scheduled to run on the next cycle of the event loop
-        // but, rather, at the next cycle of the event loop after the
-        // timeout has passed.
-        //
-        // Instead, this method uses a message passing features that
-        // has been integrated into modern browsers to replicate the
-        // functionality of process.nextTick.
-        if (!!context.window && !!context.window.postMessage) {
+      if (event.source === ctx && event.data === message) {
 
-          return (function (ctx) {
+        if (!!event.stopPropogation) {
 
-            var queue = [],
-              message = "nextTick",
-              handle = function (event) {
-
-                if (event.source === ctx.window &&
-                      event.data === message) {
-
-                  if (!!event.stopPropogation) {
-
-                    event.stopPropogation();
-
-                  }
-
-                  if (queue.length > 0) {
-
-                    queue.shift()();
-
-                  }
-
-                }
-
-              };
-
-            if (!!ctx.window.addEventListener) {
-
-              ctx.window.addEventListener(
-                "message",
-                handle,
-                true
-              );
-
-            } else {
-
-              ctx.window.attachEvent("onmessage", handle);
-
-            }
-
-            return function defer(fn) {
-
-              queue.push(fn);
-              ctx.window.postMessage(message, '*');
-
-            };
-
-          }(context));
+          event.stopPropogation();
 
         }
 
-        // Try as I might, I could not find a process for deferring
-        // function execution in legacy browsers without using
-        // `setTimeout`. If you know of a way to trigger asynchronous
-        // actions in legacy browsers then I would love to hear it.
-        return function defer(fn) {
+        if (queue.length > 0) {
 
-          setTimeout(fn, 0);
+          queue.shift()();
 
-        };
+        }
 
       }
 
     }
 
-  }());
+    if (!!ctx.addEventListener) {
 
-  defer.bind = function bind(fn, ctx) {
+      ctx.addEventListener("message", handle, true);
 
-    var boundArgs;
+    } else {
 
-    if (!!Function.prototype.bind) {
-
-      boundArgs = Array.prototype.slice.call(arguments, 1);
-      return Function.prototype.bind.apply(fn, boundArgs);
+      ctx.attachEvent("onmessage", handle);
 
     }
 
-    boundArgs = Array.prototype.slice.call(arguments, 2);
+    return function defer(fn) {
 
-    return function () {
-
-      var unboundArgs = Array.prototype.slice.call(arguments);
-      return fn.apply(ctx, boundArgs.concat(unboundArgs));
+      queue.push(fn);
+      ctx.postMessage(message, '*');
 
     };
+  }
 
-  };
+  function sillyDefer(fn) {
+    setTimeout(fn, 0);
+  }
+
+  defer = defer || getSetImmediate() || undefined;
+  defer = defer || getNextTick() || undefined;
+  defer = defer || (context.window && postMessage(context.window)) || undefined;
+  defer = defer || sillyDefer;
 
   defer.defer = defer;
+
+  function arrayFromArguments() {
+    var args = [],
+      length = arguments.length,
+      x;
+
+    for (x = 0; x < length; x = x + 1) {
+      args[x] = arguments[x];
+    }
+
+    return args;
+  }
+
+  function bindShim(fn, ctx) {
+    var boundArgs = arrayFromArguments.apply(undefined, arguments);
+
+    if (!!Function.prototype.bind) {
+      return Function.prototype.bind.apply(fn, boundArgs.slice(1));
+    }
+
+    return function bindShimWrapper() {
+      var unboundArgs = arrayFromArguments.apply(undefined, arguments);
+      return fn.apply(ctx, boundArgs.concat(unboundArgs));
+    };
+  }
+
+  defer.bind = bindShim;
 
   return defer;
 }(this));
